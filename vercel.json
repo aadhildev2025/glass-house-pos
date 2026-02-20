@@ -24,11 +24,11 @@
         },
         {
             "source": "/((?!api|uploads).*\\..*)",
-            "destination": "/$1"
+            "destination": "/client/$1"
         },
         {
             "source": "/(.*)",
-            "destination": "/index.html"
+            "destination": "/client/index.html"
         }
     ]
 }
