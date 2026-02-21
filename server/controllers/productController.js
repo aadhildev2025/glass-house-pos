@@ -13,7 +13,7 @@ const getProducts = async (req, res) => {
 // @access  Private
 const createProduct = async (req, res) => {
     const { name, sellingPrice, costPrice, quantity, category, stockTracking, purpose } = req.body;
-    const image = req.file ? `/uploads/${req.file.filename}` : '';
+    const image = req.file ? req.file.path : '';
 
     const product = new Product({
         name,
@@ -35,7 +35,7 @@ const createProduct = async (req, res) => {
 // @access  Private
 const updateProduct = async (req, res) => {
     const { name, sellingPrice, costPrice, quantity, category, stockTracking, purpose } = req.body;
-    const image = req.file ? `/uploads/${req.file.filename}` : undefined;
+    const image = req.file ? req.file.path : undefined;
 
     const product = await Product.findById(req.params.id);
 
