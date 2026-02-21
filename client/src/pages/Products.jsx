@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Plus, Edit2, Trash2, Search, X, Package } from 'lucide-react';
 import api from '../utils/api';
 import { toast } from 'react-toastify';
+import ConfirmModal from '../components/ConfirmModal';
 
 const Products = () => {
     const [products, setProducts] = useState([]);
@@ -9,6 +10,8 @@ const Products = () => {
     const [search, setSearch] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingProduct, setEditingProduct] = useState(null);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [productToDelete, setProductToDelete] = useState(null);
 
     const [formData, setFormData] = useState({
         name: '',
@@ -79,15 +82,21 @@ const Products = () => {
         }
     };
 
-    const deleteProduct = async (id) => {
-        if (window.confirm('Are you sure you want to delete this product?')) {
-            try {
-                await api.delete(`/products/${id}`);
-                toast.success('Product deleted');
-                fetchProducts();
-            } catch (err) {
-                toast.error('Delete failed');
-            }
+    const handleDeleteClick = (id) => {
+        setProductToDelete(id);
+        setIsDeleteModalOpen(true);
+    };
+
+    const confirmDelete = async () => {
+        try {
+            await api.delete(`/products/${productToDelete}`);
+            toast.success('Product deleted');
+            fetchProducts();
+        } catch (err) {
+            toast.error('Delete failed');
+        } finally {
+            setIsDeleteModalOpen(false);
+            setProductToDelete(null);
         }
     };
 
@@ -181,7 +190,7 @@ const Products = () => {
                                         <Edit2 size={16} /> Edit
                                     </button>
                                     <button
-                                        onClick={() => deleteProduct(product._id)}
+                                        onClick={() => handleDeleteClick(product._id)}
                                         style={{ padding: '0.5rem', backgroundColor: 'rgba(239, 68, 68, 0.1)', color: 'var(--error)' }}
                                     >
                                         <Trash2 size={16} />
@@ -275,6 +284,14 @@ const Products = () => {
                     </div>
                 </div>
             )}
+            {/* Delete Confirmation Modal */}
+            <ConfirmModal
+                isOpen={isDeleteModalOpen}
+                onClose={() => setIsDeleteModalOpen(false)}
+                onConfirm={confirmDelete}
+                title="Delete Product"
+                message={`Are you sure you want to delete "${products.find(p => p._id === productToDelete)?.name}"? This action cannot be undone.`}
+            />
         </div>
     );
 };

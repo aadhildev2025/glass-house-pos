@@ -8,7 +8,7 @@ const BottomNav = () => {
         { icon: ShoppingCart, label: 'POS', path: '/' },
         { icon: Package, label: 'Products', path: '/products' },
         { icon: History, label: 'History', path: '/history' },
-        { icon: Store, label: 'Store', path: '/store' },
+        { icon: Settings, label: 'Settings', path: '/settings' },
     ];
 
     return (

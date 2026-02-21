@@ -1,11 +1,15 @@
-import { useState } from 'react';
-import { Shield, Lock, Bell, ChevronRight, User, Fingerprint } from 'lucide-react';
+import { useContext, useState } from 'react';
+import { Shield, Lock, Bell, ChevronRight, User, Fingerprint, LogOut } from 'lucide-react';
 import api from '../utils/api';
 import { toast } from 'react-toastify';
 import useMobile from '../hooks/useMobile';
+import { AuthContext } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 const Settings = () => {
     const isMobile = useMobile();
+    const { logout } = useContext(AuthContext);
+    const navigate = useNavigate();
     const [newPin, setNewPin] = useState('');
     const [confirmPin, setConfirmPin] = useState('');
 
@@ -28,19 +32,23 @@ const Settings = () => {
         }
     };
 
-    const SettingItem = ({ icon: Icon, title, subtitle, action, danger }) => (
-        <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            padding: '1.25rem',
-            backgroundColor: 'var(--bg-card)',
-            borderRadius: '16px',
-            border: '1px solid var(--border)',
-            marginBottom: '1rem',
-            transition: 'all 0.2s ease',
-            cursor: action ? 'pointer' : 'default'
-        }} className="setting-item-hover">
+    const SettingItem = ({ icon: Icon, title, subtitle, action, danger, onClick }) => (
+        <div
+            style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '1.25rem',
+                backgroundColor: 'var(--bg-card)',
+                borderRadius: '16px',
+                border: '1px solid var(--border)',
+                marginBottom: '1rem',
+                transition: 'all 0.2s ease',
+                cursor: (onClick || action) ? 'pointer' : 'default'
+            }}
+            onClick={onClick}
+            className="setting-item-hover"
+        >
             <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
                 <div style={{
                     width: '48px',
@@ -147,6 +155,19 @@ const Settings = () => {
                                 Secure Update
                             </button>
                         </form>
+                    </div>
+
+                    {/* Security Section */}
+                    <div style={{ marginTop: '2.5rem' }}>
+                        <h3 style={{ fontSize: '1.1rem', fontWeight: '700', marginBottom: '1.25rem', paddingLeft: '0.5rem' }}>Danger Zone</h3>
+                        <SettingItem
+                            icon={LogOut}
+                            title="Sign Out"
+                            subtitle="Logout from your account"
+                            danger
+                            action={<ChevronRight size={20} color="var(--error)" />}
+                            onClick={handleLogout}
+                        />
                     </div>
                 </section>
             </div>

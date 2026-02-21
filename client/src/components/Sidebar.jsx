@@ -56,7 +56,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
 
             <div style={{
                 width: 'var(--sidebar-width)',
-                height: '100vh',
+                height: '100dvh', // Use dynamic viewport height
                 display: 'flex',
                 flexDirection: 'column',
                 padding: '1.5rem',
@@ -65,7 +65,8 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                 transition: 'left 0.3s ease',
                 zIndex: 1100,
                 background: 'linear-gradient(180deg, #d946ef 0%, #a855f7 50%, #7c3aed 100%)',
-                boxShadow: '4px 0 24px rgba(217, 70, 239, 0.2)'
+                boxShadow: '4px 0 24px rgba(217, 70, 239, 0.2)',
+                overflowY: 'auto' // Ensure scrolling if content exceeds height
             }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '3rem', padding: '0 0.5rem' }}>
                     <img src={logo} alt="Glass House" style={{
