@@ -132,6 +132,7 @@ const POS = () => {
             {/* Mobile Cart Toggle */}
             {isMobile && (
                 <button
+                    className="cart-fab"
                     onClick={() => setShowCart(!showCart)}
                     style={{
                         position: 'fixed',
@@ -180,22 +181,23 @@ const POS = () => {
                 backgroundColor: 'var(--bg-main)',
                 display: (isMobile && showCart) ? 'none' : 'block'
             }}>
-                <div style={{ marginBottom: '1rem' }}>
+                <div style={{ marginBottom: '1.5rem' }}>
                     <div className="card" style={{
                         display: 'flex',
                         alignItems: 'center',
                         gap: '0.75rem',
-                        padding: '0.875rem 1rem',
-                        borderRadius: '20px',
+                        padding: '1rem 1.25rem',
+                        borderRadius: '24px',
                         background: 'var(--bg-card)',
-                        border: '1px solid var(--border)'
+                        border: '2px solid var(--border-light)',
+                        boxShadow: 'var(--shadow-sm)'
                     }}>
-                        <Search size={18} color="var(--text-muted)" />
+                        <Search size={22} color="var(--text-muted)" />
                         <input
-                            placeholder="Search products..."
+                            placeholder="Search by name or category..."
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
-                            style={{ border: 'none', background: 'transparent', fontSize: '1rem' }}
+                            style={{ border: 'none', background: 'transparent', fontSize: '1.1rem', padding: '0' }}
                         />
                     </div>
                 </div>
@@ -225,37 +227,55 @@ const POS = () => {
             </div>
 
             {/* Cart Area */}
-            <div className={`glass ${isMobile && !showCart ? 'hidden' : ''}`} style={{
-                borderLeft: isMobile ? 'none' : '1px solid var(--border)',
-                display: (isMobile && !showCart) ? 'none' : 'flex',
-                flexDirection: 'column',
-                height: '100%',
-                position: isMobile ? 'fixed' : 'relative',
-                inset: isMobile ? '60px 0 0 0' : 'auto',
-                zIndex: isMobile ? 90 : 'auto',
-                backgroundColor: 'var(--bg-card)'
-            }}>
+            <div
+                className={`glass ${isMobile && !showCart ? 'hidden' : ''}`}
+                style={{
+                    borderLeft: isMobile ? 'none' : '1px solid var(--border)',
+                    display: (isMobile && !showCart) ? 'none' : 'flex',
+                    flexDirection: 'column',
+                    height: '100%',
+                    position: isMobile ? 'fixed' : 'relative',
+                    inset: isMobile ? '0 0 0 0' : 'auto',
+                    zIndex: isMobile ? 1200 : 'auto',
+                    backgroundColor: 'var(--bg-card)',
+                    paddingTop: isMobile ? 'var(--safe-top)' : '0'
+                }}
+            >
                 <div style={{ padding: '1.5rem', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <h2 style={{ fontSize: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <ShoppingCart size={24} /> {isMobile ? 'Your Order' : 'Current Order'}
+                    <h2 style={{ fontSize: isMobile ? '1.5rem' : '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <ShoppingCart size={isMobile ? 28 : 24} /> {isMobile ? 'Your Cart' : 'Current Order'}
                     </h2>
-                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <div style={{ display: 'flex', gap: '0.75rem' }}>
                         {isMobile && (
                             <button
                                 onClick={() => setShowCart(false)}
-                                style={{ padding: '0.5rem', background: 'var(--accent)', color: 'var(--text-main)', fontSize: '0.8rem' }}
+                                style={{
+                                    padding: '0.5rem 1rem',
+                                    background: 'var(--accent)',
+                                    color: 'var(--text-main)',
+                                    fontSize: '0.9rem',
+                                    borderRadius: '12px'
+                                }}
                             >
-                                Back
+                                Close
                             </button>
                         )}
                         <button
                             onClick={() => {
-                                setCart([]);
-                                setIsCheckingOut(false);
+                                if (window.confirm('Clear all items?')) {
+                                    setCart([]);
+                                    setIsCheckingOut(false);
+                                }
                             }}
-                            style={{ padding: '0.5rem', background: 'none', color: 'var(--error)', fontSize: '0.8rem' }}
+                            style={{
+                                padding: '0.5rem',
+                                background: 'none',
+                                color: 'var(--error)',
+                                fontSize: '0.9rem',
+                                fontWeight: '600'
+                            }}
                         >
-                            Clear
+                            Empty
                         </button>
                     </div>
                 </div>

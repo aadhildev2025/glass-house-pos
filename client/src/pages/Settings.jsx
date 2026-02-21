@@ -13,6 +13,11 @@ const Settings = () => {
     const [newPin, setNewPin] = useState('');
     const [confirmPin, setConfirmPin] = useState('');
 
+    const handleLogout = () => {
+        logout();
+        navigate('/login');
+    };
+
     const handleUpdatePin = async (e) => {
         e.preventDefault();
         if (newPin.length !== 4) {

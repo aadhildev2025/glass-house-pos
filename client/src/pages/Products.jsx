@@ -3,8 +3,10 @@ import { Plus, Edit2, Trash2, Search, X, Package } from 'lucide-react';
 import api from '../utils/api';
 import { toast } from 'react-toastify';
 import ConfirmModal from '../components/ConfirmModal';
+import useMobile from '../hooks/useMobile';
 
 const Products = () => {
+    const isMobile = useMobile();
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
@@ -115,9 +117,16 @@ const Products = () => {
 
     return (
         <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+            <div style={{
+                display: 'flex',
+                flexDirection: isMobile ? 'column' : 'row',
+                justifyContent: 'space-between',
+                alignItems: isMobile ? 'flex-start' : 'center',
+                gap: '1rem',
+                marginBottom: '2rem'
+            }}>
                 <div>
-                    <h1>Product Management</h1>
+                    <h1 style={{ fontSize: isMobile ? '1.75rem' : '2.25rem' }}>Product Management</h1>
                     <p style={{ color: 'var(--text-muted)' }}>Manage your inventory here</p>
                 </div>
                 <button
@@ -129,7 +138,12 @@ const Products = () => {
                         setImagePreview(null);
                         setIsModalOpen(true);
                     }}
-                    style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+                    style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem',
+                        width: isMobile ? '100%' : 'auto'
+                    }}
                 >
                     <Plus size={20} /> Add Product
                 </button>
@@ -146,7 +160,10 @@ const Products = () => {
             </div>
 
             {loading ? <p>Loading...</p> : (
-                <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))' }}>
+                <div className="grid" style={{
+                    gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(auto-fill, minmax(280px, 1fr))',
+                    gap: isMobile ? '0.75rem' : '1.5rem'
+                }}>
                     {filteredProducts.map(product => (
                         <div key={product._id} className="card" style={{ padding: '0', overflow: 'hidden' }}>
                             <div style={{ height: '180px', backgroundColor: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -206,9 +223,15 @@ const Products = () => {
             {isModalOpen && (
                 <div style={{
                     position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-                    backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100
+                    backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100,
+                    padding: isMobile ? '1rem' : '2rem'
                 }}>
-                    <div className="card" style={{ width: '500px', maxWidth: '90%' }}>
+                    <div className="card" style={{
+                        width: '500px',
+                        maxWidth: '100%',
+                        maxHeight: '90vh',
+                        overflowY: 'auto'
+                    }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2rem' }}>
                             <h2>{editingProduct ? 'Edit Product' : 'Add New Product'}</h2>
                             <button onClick={() => setIsModalOpen(false)} style={{ background: 'none' }}><X size={24} /></button>
