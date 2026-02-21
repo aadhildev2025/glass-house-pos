@@ -8,6 +8,32 @@ const User = require('./models/User');
 // Load environment variables
 dotenv.config();
 
+const app = express();
+
+// Middleware
+app.use(cors({
+    origin: process.env.FRONTEND_URL || '*',
+    credentials: true
+}));
+app.use(express.json());
+
+// Set up static folder for uploads
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// Routes
+app.use('/api/auth', require('./routes/authRoutes'));
+app.use('/api/products', require('./routes/productRoutes'));
+app.use('/api/store', require('./routes/storeRoutes'));
+app.use('/api/sales', require('./routes/saleRoutes'));
+
+app.get('/api/health', (req, res) => {
+    res.json({ status: 'ok', message: 'Backend is reachable' });
+});
+
+app.get('/', (req, res) => {
+    res.send('POS API is running...');
+});
+
 // Connect to Database and Setup Default User
 const initializeApp = async () => {
     try {
