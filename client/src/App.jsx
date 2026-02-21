@@ -2,6 +2,7 @@ import { useState, useEffect, useContext } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { AnimatePresence } from 'framer-motion';
 
 import { AuthContext, AuthProvider } from './context/AuthContext';
 import Sidebar from './components/Sidebar';
@@ -13,6 +14,7 @@ import StoreData from './pages/StoreData';
 import SalesHistory from './pages/SalesHistory';
 import Settings from './pages/Settings';
 import BottomNav from './components/BottomNav';
+import SplashScreen from './components/SplashScreen';
 
 import { Menu, X } from 'lucide-react';
 
@@ -21,6 +23,7 @@ import useMobile from './hooks/useMobile';
 const AppContent = () => {
   const { user } = useContext(AuthContext);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const isMobile = useMobile();
 
   // Close sidebar on route change (mobile)
@@ -31,19 +34,35 @@ const AppContent = () => {
   useEffect(() => {
     // Default to light theme
     document.documentElement.setAttribute('data-theme', 'light');
+
+    // Splash screen timer
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 2500);
+
+    return () => clearTimeout(timer);
   }, []);
 
   if (!user) {
     return (
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="*" element={<Navigate to="/login" />} />
-      </Routes>
+      <>
+        <AnimatePresence>
+          {isLoading && <SplashScreen />}
+        </AnimatePresence>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="*" element={<Navigate to="/login" />} />
+        </Routes>
+      </>
     );
   }
 
   return (
     <div className="main-layout">
+      <AnimatePresence>
+        {isLoading && <SplashScreen />}
+      </AnimatePresence>
+
       {/* Mobile Toggle Button */}
       {isMobile && (
         <button
