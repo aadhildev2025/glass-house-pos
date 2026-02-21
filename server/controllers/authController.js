@@ -13,13 +13,21 @@ const loginUser = async (req, res) => {
 
     const user = await User.findOne({ role: 'admin' });
 
-    if (user && (await user.matchPin(pin))) {
+    if (!user) {
+        console.log('Login failed: No admin user found in database.');
+        return res.status(401).json({ message: 'Invalid PIN' });
+    }
+
+    const isMatch = await user.matchPin(pin);
+    if (isMatch) {
+        console.log('Login successful for admin user.');
         res.json({
             _id: user._id,
             role: user.role,
             token: generateToken(user._id),
         });
     } else {
+        console.log('Login failed: PIN mismatch.');
         res.status(401).json({ message: 'Invalid PIN' });
     }
 };
