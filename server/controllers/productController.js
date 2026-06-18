@@ -41,8 +41,8 @@ const updateProduct = async (req, res) => {
 
     if (product) {
         product.name = name || product.name;
-        product.sellingPrice = sellingPrice !== undefined ? sellingPrice : product.sellingPrice;
-        product.costPrice = costPrice !== undefined ? costPrice : product.costPrice;
+        product.sellingPrice = (sellingPrice !== undefined && sellingPrice !== '') ? sellingPrice : (sellingPrice === '' ? 0 : product.sellingPrice);
+        product.costPrice = (costPrice !== undefined && costPrice !== '') ? costPrice : (costPrice === '' ? 0 : product.costPrice);
         product.quantity = quantity !== undefined ? quantity : product.quantity;
         product.category = category || product.category;
         product.stockTracking = stockTracking !== undefined ? stockTracking : product.stockTracking;

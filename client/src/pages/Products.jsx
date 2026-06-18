@@ -186,6 +186,19 @@ const Products = () => {
                                     <p style={{ fontSize: '1.25rem', fontWeight: '700', color: 'var(--primary)' }}>Rs. {product.sellingPrice}</p>
                                     <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>Qty: {product.quantity || '∞'}</p>
                                 </div>
+                                <div style={{ 
+                                    fontSize: '0.75rem', 
+                                    color: 'var(--text-muted)', 
+                                    marginBottom: '1.25rem',
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center',
+                                    borderTop: '1px dashed var(--border)',
+                                    paddingTop: '0.75rem'
+                                }}>
+                                    <span>Last Active:</span>
+                                    <span style={{ fontWeight: '500' }}>{product.updatedAt ? new Date(product.updatedAt).toLocaleString('en-US', { dateStyle: 'short', timeStyle: 'short' }) : 'N/A'}</span>
+                                </div>
                                 <div style={{ display: 'flex', gap: '0.5rem' }}>
                                     <button
                                         onClick={() => {
@@ -281,8 +294,7 @@ const Products = () => {
                             <div style={{ display: 'flex', gap: '1rem' }}>
                                 <input
                                     type="number"
-                                    placeholder="Selling Price"
-                                    required
+                                    placeholder="Selling Price (Optional)"
                                     value={formData.sellingPrice}
                                     onChange={(e) => setFormData({ ...formData, sellingPrice: e.target.value })}
                                 />

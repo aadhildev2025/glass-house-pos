@@ -176,6 +176,9 @@ const Inventory = () => {
                                         <div>
                                             <p style={{ fontWeight: '700' }}>{product.name}</p>
                                             <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{product.category}</p>
+                                            <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
+                                                Last Active: {product.updatedAt ? new Date(product.updatedAt).toLocaleString('en-US', { dateStyle: 'short', timeStyle: 'short' }) : 'N/A'}
+                                            </p>
                                         </div>
                                     </div>
                                     <div style={{ textAlign: 'right' }}>
