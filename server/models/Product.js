@@ -17,6 +17,10 @@ const productSchema = new mongoose.Schema({
         type: Number,
         default: 0,
     },
+    percentage: {
+        type: Number,
+        default: 0,
+    },
     quantity: {
         type: Number,
         default: 0, // 0 can mean out of stock, null/empty could mean unlimited

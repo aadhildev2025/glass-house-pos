@@ -12,13 +12,14 @@ const getProducts = async (req, res) => {
 // @route   POST /api/products
 // @access  Private
 const createProduct = async (req, res) => {
-    const { name, sellingPrice, costPrice, quantity, category, stockTracking, purpose } = req.body;
+    const { name, sellingPrice, costPrice, percentage, quantity, category, stockTracking, purpose } = req.body;
     const image = req.file ? req.file.path : '';
 
     const product = new Product({
         name,
         sellingPrice: sellingPrice || 0,
         costPrice: costPrice || 0,
+        percentage: (percentage !== undefined && percentage !== '') ? Number(percentage) : 0,
         quantity: quantity || 0,
         category,
         stockTracking: stockTracking === undefined ? true : stockTracking,
@@ -34,7 +35,7 @@ const createProduct = async (req, res) => {
 // @route   PUT /api/products/:id
 // @access  Private
 const updateProduct = async (req, res) => {
-    const { name, sellingPrice, costPrice, quantity, category, stockTracking, purpose } = req.body;
+    const { name, sellingPrice, costPrice, percentage, quantity, category, stockTracking, purpose } = req.body;
     const image = req.file ? req.file.path : undefined;
 
     const product = await Product.findById(req.params.id);
@@ -43,6 +44,7 @@ const updateProduct = async (req, res) => {
         product.name = name || product.name;
         product.sellingPrice = (sellingPrice !== undefined && sellingPrice !== '') ? sellingPrice : (sellingPrice === '' ? 0 : product.sellingPrice);
         product.costPrice = (costPrice !== undefined && costPrice !== '') ? costPrice : (costPrice === '' ? 0 : product.costPrice);
+        product.percentage = (percentage !== undefined && percentage !== '') ? Number(percentage) : (percentage === '' ? 0 : product.percentage);
         product.quantity = quantity !== undefined ? quantity : product.quantity;
         product.category = category || product.category;
         product.stockTracking = stockTracking !== undefined ? stockTracking : product.stockTracking;

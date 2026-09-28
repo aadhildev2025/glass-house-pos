@@ -20,12 +20,39 @@ const Products = () => {
         category: '',
         sellingPrice: '',
         costPrice: '',
+        percentage: '',
         quantity: '',
         stockTracking: true,
         purpose: 'sale',
     });
     const [imageFile, setImageFile] = useState(null);
     const [imagePreview, setImagePreview] = useState(null);
+
+    const handleCostPriceChange = (val) => {
+        const updated = { ...formData, costPrice: val };
+        const cost = parseFloat(val);
+        const pct = parseFloat(formData.percentage);
+        if (!isNaN(cost) && !isNaN(pct) && formData.percentage !== '') {
+            const calculated = cost + (cost * pct / 100);
+            updated.sellingPrice = Number(calculated.toFixed(2)).toString();
+        }
+        setFormData(updated);
+    };
+
+    const handlePercentageChange = (val) => {
+        const updated = { ...formData, percentage: val };
+        const cost = parseFloat(formData.costPrice);
+        const pct = parseFloat(val);
+        if (!isNaN(cost) && !isNaN(pct) && val !== '') {
+            const calculated = cost + (cost * pct / 100);
+            updated.sellingPrice = Number(calculated.toFixed(2)).toString();
+        }
+        setFormData(updated);
+    };
+
+    const handleSellingPriceChange = (val) => {
+        setFormData({ ...formData, sellingPrice: val });
+    };
 
     const fetchProducts = async () => {
         try {
@@ -75,7 +102,7 @@ const Products = () => {
             }
             setIsModalOpen(false);
             setEditingProduct(null);
-            setFormData({ name: '', category: '', sellingPrice: '', costPrice: '', quantity: '', stockTracking: true });
+            setFormData({ name: '', category: '', sellingPrice: '', costPrice: '', percentage: '', quantity: '', stockTracking: true, purpose: 'sale' });
             setImageFile(null);
             setImagePreview(null);
             fetchProducts();
@@ -133,7 +160,7 @@ const Products = () => {
                     className="btn-primary"
                     onClick={() => {
                         setEditingProduct(null);
-                        setFormData({ name: '', category: '', sellingPrice: '', costPrice: '', quantity: '', stockTracking: true });
+                        setFormData({ name: '', category: '', sellingPrice: '', costPrice: '', percentage: '', quantity: '', stockTracking: true, purpose: 'sale' });
                         setImageFile(null);
                         setImagePreview(null);
                         setIsModalOpen(true);
@@ -183,7 +210,21 @@ const Products = () => {
                                     }}>{product.category}</span>
                                 </div>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
-                                    <p style={{ fontSize: '1.25rem', fontWeight: '700', color: 'var(--primary)' }}>Rs. {product.sellingPrice}</p>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                        <p style={{ fontSize: '1.25rem', fontWeight: '700', color: 'var(--primary)' }}>Rs. {product.sellingPrice}</p>
+                                        {Boolean(product.percentage) && (
+                                            <span style={{
+                                                padding: '0.15rem 0.45rem',
+                                                backgroundColor: 'rgba(16, 185, 129, 0.12)',
+                                                color: '#10b981',
+                                                borderRadius: '6px',
+                                                fontSize: '0.75rem',
+                                                fontWeight: '600'
+                                            }}>
+                                                +{product.percentage}%
+                                            </span>
+                                        )}
+                                    </div>
                                     <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>Qty: {product.quantity || '∞'}</p>
                                 </div>
                                 <div style={{ 
@@ -206,10 +247,12 @@ const Products = () => {
                                             setFormData({
                                                 name: product.name,
                                                 category: product.category,
-                                                sellingPrice: product.sellingPrice,
-                                                costPrice: product.costPrice,
+                                                sellingPrice: product.sellingPrice !== undefined && product.sellingPrice !== null ? product.sellingPrice : '',
+                                                costPrice: product.costPrice !== undefined && product.costPrice !== null ? product.costPrice : '',
+                                                percentage: product.percentage !== undefined && product.percentage !== null && product.percentage !== 0 ? product.percentage : '',
                                                 quantity: product.quantity,
-                                                stockTracking: product.stockTracking
+                                                stockTracking: product.stockTracking,
+                                                purpose: product.purpose || 'sale'
                                             });
                                             setImagePreview(getImageUrl(product.image));
                                             setImageFile(null);
@@ -291,18 +334,61 @@ const Products = () => {
                                 value={formData.category}
                                 onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                             />
-                            <div style={{ display: 'flex', gap: '1rem' }}>
+
+                            <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: '1rem' }}>
                                 <input
                                     type="number"
-                                    placeholder="Selling Price (Optional)"
-                                    value={formData.sellingPrice}
-                                    onChange={(e) => setFormData({ ...formData, sellingPrice: e.target.value })}
+                                    step="any"
+                                    placeholder="Cost Price (Optional)"
+                                    value={formData.costPrice}
+                                    onChange={(e) => handleCostPriceChange(e.target.value)}
+                                    style={{ flex: 1, minWidth: 0 }}
                                 />
                                 <input
                                     type="number"
-                                    placeholder="Cost Price (Optional)"
-                                    value={formData.costPrice}
-                                    onChange={(e) => setFormData({ ...formData, costPrice: e.target.value })}
+                                    step="any"
+                                    min="0"
+                                    placeholder="Percentage / Discount % (Optional)"
+                                    value={formData.percentage}
+                                    onChange={(e) => handlePercentageChange(e.target.value)}
+                                    style={{ flex: 1, minWidth: 0, fontSize: isMobile ? '16px' : '0.88rem' }}
+                                    title="Optional percentage markup or discount"
+                                />
+                            </div>
+
+                            {formData.costPrice !== '' && formData.percentage !== '' && !isNaN(parseFloat(formData.costPrice)) && !isNaN(parseFloat(formData.percentage)) && (
+                                <div style={{
+                                    fontSize: '0.825rem',
+                                    color: 'var(--primary)',
+                                    backgroundColor: 'rgba(217, 70, 239, 0.1)',
+                                    padding: '0.5rem 0.75rem',
+                                    borderRadius: '10px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                    border: '1px solid rgba(217, 70, 239, 0.2)'
+                                }}>
+                                    <span>💡 Calculated Selling Price: <strong>Rs. {formData.sellingPrice}</strong></span>
+                                    <span style={{ fontSize: '0.75rem', opacity: 0.8 }}>(Cost: {formData.costPrice} + {formData.percentage}%)</span>
+                                </div>
+                            )}
+
+                            <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: '1rem' }}>
+                                <input
+                                    type="number"
+                                    step="any"
+                                    placeholder="Selling Price (Optional)"
+                                    value={formData.sellingPrice}
+                                    onChange={(e) => handleSellingPriceChange(e.target.value)}
+                                    style={{ flex: 1, minWidth: 0 }}
+                                />
+                                <input
+                                    type="number"
+                                    placeholder="Quantity"
+                                    value={formData.quantity}
+                                    onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
+                                    min="0"
+                                    style={{ flex: 1, minWidth: 0 }}
                                 />
                             </div>
                             <input
