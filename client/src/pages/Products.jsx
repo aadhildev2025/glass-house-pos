@@ -33,7 +33,7 @@ const Products = () => {
         const cost = parseFloat(val);
         const pct = parseFloat(formData.percentage);
         if (!isNaN(cost) && !isNaN(pct) && formData.percentage !== '') {
-            const calculated = cost + (cost * pct / 100);
+            const calculated = Math.max(0, cost + (cost * pct / 100));
             updated.sellingPrice = Number(calculated.toFixed(2)).toString();
         }
         setFormData(updated);
@@ -43,8 +43,8 @@ const Products = () => {
         const updated = { ...formData, percentage: val };
         const cost = parseFloat(formData.costPrice);
         const pct = parseFloat(val);
-        if (!isNaN(cost) && !isNaN(pct) && val !== '') {
-            const calculated = cost + (cost * pct / 100);
+        if (!isNaN(cost) && !isNaN(pct) && val !== '' && val !== '-') {
+            const calculated = Math.max(0, cost + (cost * pct / 100));
             updated.sellingPrice = Number(calculated.toFixed(2)).toString();
         }
         setFormData(updated);
@@ -212,16 +212,16 @@ const Products = () => {
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                                         <p style={{ fontSize: '1.25rem', fontWeight: '700', color: 'var(--primary)' }}>Rs. {product.sellingPrice}</p>
-                                        {Boolean(product.percentage) && (
+                                        {product.percentage !== undefined && product.percentage !== null && product.percentage !== '' && Number(product.percentage) !== 0 && (
                                             <span style={{
                                                 padding: '0.15rem 0.45rem',
-                                                backgroundColor: 'rgba(16, 185, 129, 0.12)',
-                                                color: '#10b981',
+                                                backgroundColor: Number(product.percentage) > 0 ? 'rgba(16, 185, 129, 0.12)' : 'rgba(239, 68, 68, 0.12)',
+                                                color: Number(product.percentage) > 0 ? '#10b981' : '#ef4444',
                                                 borderRadius: '6px',
                                                 fontSize: '0.75rem',
                                                 fontWeight: '600'
                                             }}>
-                                                +{product.percentage}%
+                                                {Number(product.percentage) > 0 ? `+${product.percentage}%` : `${product.percentage}%`}
                                             </span>
                                         )}
                                     </div>
@@ -344,32 +344,85 @@ const Products = () => {
                                     onChange={(e) => handleCostPriceChange(e.target.value)}
                                     style={{ flex: 1, minWidth: 0 }}
                                 />
-                                <input
-                                    type="number"
-                                    step="any"
-                                    min="0"
-                                    placeholder="Percentage / Discount % (Optional)"
-                                    value={formData.percentage}
-                                    onChange={(e) => handlePercentageChange(e.target.value)}
-                                    style={{ flex: 1, minWidth: 0, fontSize: isMobile ? '16px' : '0.88rem' }}
-                                    title="Optional percentage markup or discount"
-                                />
+                                <div style={{ flex: 1, display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
+                                    <input
+                                        type="number"
+                                        step="any"
+                                        placeholder="Markup % or Discount -%"
+                                        value={formData.percentage}
+                                        onChange={(e) => handlePercentageChange(e.target.value)}
+                                        style={{ flex: 1, minWidth: 0, fontSize: isMobile ? '16px' : '0.88rem' }}
+                                        title="Enter positive for markup or negative for discount"
+                                    />
+                                    <div style={{ display: 'flex', backgroundColor: 'var(--accent)', borderRadius: '8px', padding: '2px' }}>
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                const current = formData.percentage !== undefined && formData.percentage !== null ? formData.percentage.toString() : '';
+                                                if (current.startsWith('-')) {
+                                                    handlePercentageChange(current.slice(1));
+                                                }
+                                            }}
+                                            style={{
+                                                padding: '0.35rem 0.6rem',
+                                                borderRadius: '6px',
+                                                fontSize: '0.85rem',
+                                                fontWeight: '700',
+                                                border: 'none',
+                                                cursor: 'pointer',
+                                                background: (!formData.percentage || !formData.percentage.toString().startsWith('-')) ? 'var(--primary)' : 'transparent',
+                                                color: (!formData.percentage || !formData.percentage.toString().startsWith('-')) ? 'white' : 'var(--text-muted)'
+                                            }}
+                                            title="Markup (+)"
+                                        >
+                                            +
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                const current = formData.percentage !== undefined && formData.percentage !== null ? formData.percentage.toString() : '';
+                                                if (current && !current.startsWith('-')) {
+                                                    handlePercentageChange('-' + current);
+                                                } else if (!current) {
+                                                    handlePercentageChange('-');
+                                                }
+                                            }}
+                                            style={{
+                                                padding: '0.35rem 0.6rem',
+                                                borderRadius: '6px',
+                                                fontSize: '0.85rem',
+                                                fontWeight: '700',
+                                                border: 'none',
+                                                cursor: 'pointer',
+                                                background: (formData.percentage && formData.percentage.toString().startsWith('-')) ? '#ef4444' : 'transparent',
+                                                color: (formData.percentage && formData.percentage.toString().startsWith('-')) ? 'white' : 'var(--text-muted)'
+                                            }}
+                                            title="Discount (-)"
+                                        >
+                                            -
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
 
-                            {formData.costPrice !== '' && formData.percentage !== '' && !isNaN(parseFloat(formData.costPrice)) && !isNaN(parseFloat(formData.percentage)) && (
+                            {formData.costPrice !== '' && formData.percentage !== '' && formData.percentage !== '-' && !isNaN(parseFloat(formData.costPrice)) && !isNaN(parseFloat(formData.percentage)) && (
                                 <div style={{
                                     fontSize: '0.825rem',
-                                    color: 'var(--primary)',
-                                    backgroundColor: 'rgba(217, 70, 239, 0.1)',
+                                    color: parseFloat(formData.percentage) >= 0 ? 'var(--primary)' : '#ef4444',
+                                    backgroundColor: parseFloat(formData.percentage) >= 0 ? 'rgba(217, 70, 239, 0.1)' : 'rgba(239, 68, 68, 0.1)',
                                     padding: '0.5rem 0.75rem',
                                     borderRadius: '10px',
                                     display: 'flex',
                                     alignItems: 'center',
                                     justifyContent: 'space-between',
-                                    border: '1px solid rgba(217, 70, 239, 0.2)'
+                                    border: `1px solid ${parseFloat(formData.percentage) >= 0 ? 'rgba(217, 70, 239, 0.2)' : 'rgba(239, 68, 68, 0.2)'}`
                                 }}>
                                     <span>💡 Calculated Selling Price: <strong>Rs. {formData.sellingPrice}</strong></span>
-                                    <span style={{ fontSize: '0.75rem', opacity: 0.8 }}>(Cost: {formData.costPrice} + {formData.percentage}%)</span>
+                                    <span style={{ fontSize: '0.75rem', opacity: 0.85 }}>
+                                        {parseFloat(formData.percentage) >= 0
+                                            ? `(Cost: ${formData.costPrice} + ${formData.percentage}%)`
+                                            : `(Cost: ${formData.costPrice} - ${Math.abs(parseFloat(formData.percentage))}%)`}
+                                    </span>
                                 </div>
                             )}
 
@@ -391,13 +444,6 @@ const Products = () => {
                                     style={{ flex: 1, minWidth: 0 }}
                                 />
                             </div>
-                            <input
-                                type="number"
-                                placeholder="Quantity"
-                                value={formData.quantity}
-                                onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
-                                min="0"
-                            />
                             <button type="submit" className="btn-primary" style={{ marginTop: '1rem' }}>
                                 {editingProduct ? 'Update Product' : 'Add Product'}
                             </button>

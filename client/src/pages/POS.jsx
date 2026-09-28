@@ -21,7 +21,8 @@ const POS = () => {
     const [store, setStore] = useState({});
     const [cart, setCart] = useState([]);
     const [search, setSearch] = useState('');
-    const [discount, setDiscount] = useState(0);
+    const [discountType, setDiscountType] = useState('amount'); // 'amount' | 'percent'
+    const [discountValue, setDiscountValue] = useState('');
     const isMobile = useMobile();
     const [showCart, setShowCart] = useState(false);
 
@@ -79,7 +80,11 @@ const POS = () => {
 
     const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     const taxAmount = subtotal * (store.taxPercentage / 100 || 0);
-    const total = subtotal + taxAmount - discount;
+    const parsedDiscountVal = parseFloat(discountValue) || 0;
+    const discountAmount = discountType === 'percent'
+        ? Math.min(subtotal + taxAmount, (subtotal * parsedDiscountVal) / 100)
+        : Math.min(subtotal + taxAmount, parsedDiscountVal);
+    const total = Math.max(0, subtotal + taxAmount - discountAmount);
 
     const balance = cashReceived ? (Number(cashReceived) - total) : 0;
 
@@ -92,15 +97,15 @@ const POS = () => {
                 items: cart,
                 subtotal,
                 tax: taxAmount,
-                discount,
-                total,
+                discount: Number(discountAmount.toFixed(2)),
+                total: Number(total.toFixed(2)),
                 paymentMethod: 'Cash',
                 cashReceived: Number(cashReceived),
                 balance: balance
             });
             toast.success('Sale completed!');
             setCart([]);
-            setDiscount(0);
+            setDiscountValue('');
             setCashReceived('');
             setIsCheckingOut(false);
             window.print(); // Basic receipt print
@@ -264,6 +269,7 @@ const POS = () => {
                             onClick={() => {
                                 if (window.confirm('Clear all items?')) {
                                     setCart([]);
+                                    setDiscountValue('');
                                     setIsCheckingOut(false);
                                 }
                             }}
@@ -398,16 +404,62 @@ const POS = () => {
                                 </div>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                     <span style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Discount</span>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                        <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Rs</span>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                                        <div style={{
+                                            display: 'flex',
+                                            backgroundColor: 'var(--accent)',
+                                            borderRadius: '8px',
+                                            padding: '2px'
+                                        }}>
+                                            <button
+                                                type="button"
+                                                onClick={() => setDiscountType('amount')}
+                                                style={{
+                                                    padding: '0.2rem 0.5rem',
+                                                    borderRadius: '6px',
+                                                    fontSize: '0.75rem',
+                                                    fontWeight: '700',
+                                                    border: 'none',
+                                                    cursor: 'pointer',
+                                                    background: discountType === 'amount' ? 'var(--primary)' : 'transparent',
+                                                    color: discountType === 'amount' ? 'white' : 'var(--text-muted)'
+                                                }}
+                                            >
+                                                Rs
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => setDiscountType('percent')}
+                                                style={{
+                                                    padding: '0.2rem 0.5rem',
+                                                    borderRadius: '6px',
+                                                    fontSize: '0.75rem',
+                                                    fontWeight: '700',
+                                                    border: 'none',
+                                                    cursor: 'pointer',
+                                                    background: discountType === 'percent' ? 'var(--primary)' : 'transparent',
+                                                    color: discountType === 'percent' ? 'white' : 'var(--text-muted)'
+                                                }}
+                                            >
+                                                %
+                                            </button>
+                                        </div>
                                         <input
                                             type="number"
-                                            value={discount}
-                                            onChange={(e) => setDiscount(Number(e.target.value))}
+                                            min="0"
+                                            step="any"
+                                            placeholder="0"
+                                            value={discountValue}
+                                            onChange={(e) => setDiscountValue(e.target.value)}
                                             style={{ width: '70px', padding: '0.4rem', textAlign: 'right', fontSize: '1rem', borderRadius: '8px' }}
                                         />
                                     </div>
                                 </div>
+                                {discountType === 'percent' && parsedDiscountVal > 0 && (
+                                    <div style={{ display: 'flex', justifyContent: 'flex-end', fontSize: '0.8rem', color: 'var(--primary)', marginTop: '-0.35rem' }}>
+                                        <span>Savings: -Rs. {discountAmount.toFixed(2)} ({parsedDiscountVal}%)</span>
+                                    </div>
+                                )}
                                 <div style={{ height: '1px', background: 'var(--border)', margin: '0.5rem 0' }} />
                                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1.4rem', fontWeight: '800', color: 'var(--text-main)' }}>
                                     <span>Total</span>
